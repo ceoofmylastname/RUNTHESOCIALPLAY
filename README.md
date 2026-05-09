@@ -25,10 +25,10 @@ Subscription SaaS that delivers fully-produced social posts (copy + visual + pla
 - **DB + Auth + Storage:** Supabase (Postgres, RLS-locked)
 - **Job queue:** Trigger.dev v3
 - **Payments:** Stripe (subscriptions + metered)
-- **AI:**
+- **AI:** all rendering consolidated on Higgsfield REST as of 2026-05-09 (KIE.ai dropped — see docs/pipeline-decisions.md)
   - Copy → Claude Sonnet 4.6 (`@anthropic-ai/sdk`, workers only)
-  - Image → Nano Banana Pro via KIE.ai REST
-  - Video → Higgsfield Video REST (`api.higgsfield.ai`)
+  - Image → Nano Banana Pro via Higgsfield REST (`api.higgsfield.ai`)
+  - Video → Higgsfield Video REST
   - Identity-lock → Higgsfield SOUL REST
 - **Email:** Resend (workers only)
 - **Analytics:** PostHog
@@ -103,28 +103,24 @@ These need real accounts/API keys. Get the test/dev tier of each, populate `.env
 - Get API key at console.anthropic.com
 - Confirm Claude Sonnet 4.6 access — model id `claude-sonnet-4-6`
 
-### 4. KIE.ai (Nano Banana Pro)
-- Get API key at kie.ai
-- Endpoint pattern: `POST /api/v1/playground/generate` with `model: nano-banana-pro` and `image_input` for reference media
-
-### 5. Higgsfield (Video + SOUL)
+### 4. Higgsfield (Image + Video + SOUL)
 - Get API key from `api.higgsfield.ai` developer portal
-- SOUL endpoint for identity-lock training; Video endpoint for motion
+- Single REST surface covers Nano Banana Pro (image), Higgsfield Video, and SOUL identity-lock
 
-### 6. Stripe
+### 5. Stripe
 - Create test-mode account
 - Set up products + prices for the subscription tiers (one-time setup, usually via dashboard)
 - Configure webhook → `<APP_URL>/api/stripe/webhook` (route lands in Phase 2)
 
-### 7. Resend
+### 6. Resend
 - Verify a sending domain
 - Get API key
 
-### 8. PostHog
+### 7. PostHog
 - Create a project
 - Copy public key + host
 
-### 9. Vercel
+### 8. Vercel
 - Connect this repo
 - Add all env vars from `.env.local`
 - Deploy

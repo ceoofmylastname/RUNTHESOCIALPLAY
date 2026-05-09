@@ -1,34 +1,39 @@
 /**
- * KIE.ai REST adapter — Nano Banana Pro image generation.
+ * DEFERRED — Deferred to v1.5 as a Higgsfield failover. See docs/roadmap.md.
  *
- * Locked: KIE.ai handles all image rendering (single images, carousel
- * slides, ad scenes). Endpoint accepts `image_input` URL for reference
- * media — used for character-lock and carousel cover-anchoring.
+ * As of 2026-05-09 we consolidated all image + video + SOUL rendering on
+ * Higgsfield's REST API. KIE.ai was a redundant middleman because
+ * Higgsfield's own REST exposes Nano Banana Pro directly.
  *
- * Same hard rules as Higgsfield adapter: explicit model_id required,
- * non-2xx triggers an alarm log.
+ * This file is preserved as `.ts.bak` so the adapter shape is ready to
+ * resurrect if Higgsfield reliability ever forces a failover. Excluded
+ * from the build (extension is not `.ts`, parent dir is `_deferred/`).
+ *
+ * Original adapter follows.
  */
 
-import type {
-  ImageRenderClient,
-  ImageRenderRequest,
-  ImageRenderResult,
-} from './index';
-import { assertExplicitModelId } from './index';
+// import type {
+//   ImageRenderClient,
+//   ImageRenderRequest,
+//   ImageRenderResult,
+// } from '../index';
+// import { assertExplicitModelId } from '../index';
 
 const KIE_BASE_URL = 'https://api.kie.ai';
 const KIE_API_VERSION = '2026-04-01';            // pin explicitly; bump deliberately
 
-export class KieRenderClient implements ImageRenderClient {
+/* eslint-disable */
+// @ts-nocheck
+export class KieRenderClient /* implements ImageRenderClient */ {
   constructor(private readonly apiKey: string = process.env.KIE_AI_API_KEY ?? '') {
     if (!this.apiKey) {
       throw new Error('KIE_AI_API_KEY is required for KieRenderClient');
     }
   }
 
-  async generateImage(req: ImageRenderRequest): Promise<ImageRenderResult> {
-    assertExplicitModelId(req.model_id);
-    throw new Error('KieRenderClient.generateImage — not implemented (Phase 4)');
+  async generateImage(req: any): Promise<any> {
+    // assertExplicitModelId(req.model_id);
+    throw new Error('KieRenderClient.generateImage — deferred (v1.5 failover)');
   }
 
   protected async request<T>(path: string, init: RequestInit = {}): Promise<T> {

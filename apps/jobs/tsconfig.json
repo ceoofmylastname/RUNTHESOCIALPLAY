@@ -12,5 +12,5 @@
     }
   },
   "include": ["src/**/*", "trigger.config.ts"],
-  "exclude": ["node_modules", "dist", ".trigger"]
+  "exclude": ["node_modules", "dist", ".trigger", "src/**/_deferred/**"]
 }

@@ -1,18 +1,27 @@
 /**
- * Higgsfield REST adapter — Video + SOUL identity-lock.
+ * Higgsfield REST adapter — sole render provider for image + video + SOUL.
  *
- * Locked decision (2026-05-09): we use direct REST against
- * `api.higgsfield.ai`, NOT the higgsfield CLI. The CLI's backend
- * prompt-enhancer would silently mutate prompts before they hit the
- * model, breaking `brand_skill_version_id` snapshot reproducibility.
- * See `project_pipeline_v01_locked.md` for full reasoning.
+ * Locked decision (2026-05-09a): direct REST against `api.higgsfield.ai`,
+ * NOT the higgsfield CLI. The CLI's backend prompt-enhancer would
+ * silently mutate prompts before they hit the model, breaking
+ * `brand_skill_version_id` snapshot reproducibility.
+ *
+ * Locked decision (2026-05-09b): consolidated all rendering onto
+ * Higgsfield. KIE.ai was a redundant middleman — Higgsfield's own REST
+ * exposes Nano Banana Pro alongside Video and SOUL. KIE adapter
+ * preserved at `_deferred/kie.ts.bak` as a v1.5 failover only.
+ *
+ * Endpoint coverage handled here:
+ *   - Image (Nano Banana Pro, etc.) → generateImage
+ *   - Video                          → generateVideo
+ *   - SOUL identity-lock             → trainCharacter
  *
  * Mitigations against REST surface drift:
  *   - Explicit API version pinned in headers (HIGGSFIELD_API_VERSION).
  *   - Non-2xx responses logged at `alarm` severity so we know within
  *     minutes if endpoints change.
- *   - Adapter shape clean so we could swap to CLI without pipeline
- *     changes if REST is ever truly deprecated.
+ *   - Adapter shape clean so we could swap to CLI or resurrect KIE
+ *     without pipeline changes if Higgsfield REST is ever deprecated.
  */
 
 import type {
@@ -40,6 +49,11 @@ export class HiggsfieldRenderClient
     }
   }
 
+  /**
+   * Image generation (Nano Banana Pro and any other Higgsfield image
+   * models). Same hard rules apply: explicit model_id, pinned API
+   * version, alarm on non-2xx.
+   */
   async generateImage(req: ImageRenderRequest): Promise<ImageRenderResult> {
     assertExplicitModelId(req.model_id);
     throw new Error('HiggsfieldRenderClient.generateImage — not implemented (Phase 4)');

@@ -4,6 +4,11 @@ Living doc for items deliberately deferred. Each item lists what got cut, why, a
 
 ## v1.5 (post-launch, before Pro tier)
 
+### KIE.ai as Nano Banana failover provider
+- **What:** Resurrect the KIE.ai adapter (preserved at `apps/jobs/src/lib/render/_deferred/kie.ts.bak`) as a fallback image-render provider. Wire a circuit-breaker around Higgsfield image calls — on N consecutive failures or sustained latency above threshold, fail over to KIE for image renders.
+- **Why deferred from v1:** Today there's no evidence Higgsfield image reliability is a problem. Adding two providers for one logical concern is a maintenance + monitoring liability we shouldn't pay until it's earned.
+- **What unblocks:** Real production reliability data showing Higgsfield image renders fail at a rate that hurts user experience (e.g., >2% failure rate over a 7-day window, or repeated >30s latency outliers). Then ~1-2 days to resurrect, since the adapter shape is already identical to Higgsfield's `ImageRenderClient`.
+
 ### Marketing Studio "Quick Ad" mode
 - **What:** Surface Higgsfield Marketing Studio as an alternative `ad` post_kind path. Users who haven't built a full BrandSkill (no character, no mood-board, no logos) can drop a URL or product description and get a finished ad fast.
 - **Why deferred from v1:** Marketing Studio owns the final render and overrides BrandSkill / voice_sample / locked character / extracted_style_notes. Adopting it as the default `ad` path would evaporate our brand-identity guarantees. Reasonable for users who don't want them; not reasonable as the default.

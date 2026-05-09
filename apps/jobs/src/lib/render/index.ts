@@ -1,7 +1,12 @@
 /**
  * Render-provider adapter interfaces.
  *
- * Two providers: KIE.ai (image) and Higgsfield (video + SOUL identity-lock).
+ * Single provider as of 2026-05-09: Higgsfield REST. Higgsfield's own
+ * REST API exposes Nano Banana Pro alongside Video and SOUL identity-
+ * lock, so KIE.ai was redundant — consolidated all image + video + SOUL
+ * onto Higgsfield. KIE adapter preserved at `_deferred/kie.ts.bak` as a
+ * v1.5 failover (see docs/roadmap.md).
+ *
  * Adapters are thin — they own request shaping, retries, and provider-
  * specific quirks. The pipeline never imports a provider directly; it
  * goes through these interfaces.
@@ -32,7 +37,7 @@ export interface ImageRenderRequest {
 }
 
 export interface ImageRenderResult {
-  provider: 'kie' | 'higgsfield';
+  provider: 'higgsfield';
   provider_job_id: string;
   asset_url: string;             // CloudFront-style URL from provider; the pipeline copies to Supabase Storage before any downstream reference
   width: number;

@@ -4,6 +4,29 @@ Locked decisions for the RTAIP SOCIAL generation pipeline. New entries go at the
 
 ---
 
+## 2026-05-09 (later) — drop KIE.ai, consolidate all rendering on Higgsfield
+
+Higgsfield's REST API exposes Nano Banana Pro alongside Video and SOUL identity-lock. KIE.ai was a redundant middleman. Single provider going forward.
+
+**Why:** Two providers for one logical concern (rendering) is a maintenance and reliability liability. Two API surfaces to monitor for drift, two sets of credentials to rotate, two retry/idempotency stories, two billing dashboards. Higgsfield consolidates the surface without losing any model coverage we need.
+
+**Changes applied:**
+- `apps/jobs/src/lib/render/kie.ts` moved to `apps/jobs/src/lib/render/_deferred/kie.ts.bak` — preserved as a v1.5 failover only; excluded from the build via `tsconfig.json` (`"src/**/_deferred/**"` exclude).
+- `apps/jobs/src/lib/render/index.ts` — `ImageRenderResult.provider` narrowed from `'kie' | 'higgsfield'` to `'higgsfield'`.
+- `apps/jobs/src/lib/render/higgsfield.ts` — file-level docstring rewritten as sole provider for image + video + SOUL. Same hard rules apply on the new image endpoint: explicit `model_id`, pinned API version header, alarm-severity log on non-2xx.
+- `packages/shared/src/post.schema.ts` — `RenderResult.provider` narrowed to `z.literal('higgsfield')`.
+- `.env.example` — `KIE_AI_API_KEY` removed; `HIGGSFIELD_API_KEY` comment now reads "image (Nano Banana Pro) + video + SOUL".
+- `README.md` — KIE.ai section removed from external-services round.
+
+**What this does NOT change:**
+- The carousel cover-anchoring pattern (`image_input` URL reference) still works — it's a Higgsfield REST primitive, not a KIE-specific feature.
+- The two-Claude-call structure (Stage 2 + Stage 3) is unchanged.
+- The Stage 5 composite quality gates (color fidelity, logo region tone, dimension crop) are unchanged.
+
+**Failover position:** If Higgsfield reliability ever becomes a real problem, the deferred KIE adapter is a 1-2 day rebuild — interface is identical, just resurrect the file. See `roadmap.md` v1.5 entry.
+
+---
+
 ## 2026-05-09 — four decisions after Higgsfield official-skills v0.3.0 review
 
 ### 1. CLI vs REST → REST (locked)
