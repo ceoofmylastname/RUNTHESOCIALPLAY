@@ -9,7 +9,6 @@
  */
 
 import { z } from 'zod';
-import { VOICE_ARCHETYPE_KEYS } from './voice-archetypes';
 
 // ---------------------------------------------------------------------------
 // Primitives
@@ -43,9 +42,17 @@ export type BrandCore = z.infer<typeof BrandCore>;
 // 2. Voice — how you talk
 // ---------------------------------------------------------------------------
 
+const VOICE_ARCHETYPE_ENUM = [
+  'warm-friendly',
+  'sarcastic-witty',
+  'calm-educational',
+  'professional-polished',
+  'custom',
+] as const;
+
 export const Voice = z
   .object({
-    archetype: z.enum([...VOICE_ARCHETYPE_KEYS, 'custom'] as [string, ...string[]]),
+    archetype: z.enum(VOICE_ARCHETYPE_ENUM),
     custom_description: z.string().max(500).optional(),
 
     /**
