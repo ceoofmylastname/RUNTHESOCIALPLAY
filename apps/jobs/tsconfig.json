@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "noEmit": true,
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@rtaip/shared": ["../../packages/shared/src/index.ts"],
+      "@rtaip/shared/*": ["../../packages/shared/src/*"]
+    }
+  },
+  "include": ["src/**/*", "trigger.config.ts"],
+  "exclude": ["node_modules", "dist", ".trigger"]
+}
