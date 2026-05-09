@@ -1,0 +1,24 @@
+{
+  "name": "rtaip-social",
+  "version": "0.1.0",
+  "private": true,
+  "description": "RTAIP SOCIAL — subscription SaaS that delivers fully-produced social posts. Brand-skill-driven content engine.",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=apps/web",
+    "dev:jobs": "npm run dev --workspace=apps/jobs",
+    "build": "npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "shared:build": "npm run build --workspace=packages/shared"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}
