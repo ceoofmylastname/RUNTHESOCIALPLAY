@@ -55,3 +55,6 @@ logs
 # misc OS / editor
 Thumbs.db
 .cache/
+
+# external reference material — clone fresh per dev, don't track
+docs/reference/
