@@ -10,4 +10,5 @@
 export * from './brand-skill.schema';
 export * from './platform-specs';
 export * from './post.schema';
+export * from './visual-prompt-rules';
 export * from './voice-archetypes';
