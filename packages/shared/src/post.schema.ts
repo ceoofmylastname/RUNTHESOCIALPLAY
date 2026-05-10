@@ -137,7 +137,7 @@ export const RenderResult = z.object({
   // KIE.ai / Higgsfield are pulled into Storage to avoid mid-job expiry.
   asset_url: z.string().url(),
   storage_path: z.string(),
-  provider: z.literal('higgsfield'),
+  provider: z.literal('kie'),
   provider_job_id: z.string(),
   width: z.number().int().positive(),
   height: z.number().int().positive(),

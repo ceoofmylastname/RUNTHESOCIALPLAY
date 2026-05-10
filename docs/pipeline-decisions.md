@@ -4,7 +4,55 @@ Locked decisions for the RTAIP SOCIAL generation pipeline. New entries go at the
 
 ---
 
-## 2026-05-09 (later) — drop KIE.ai, consolidate all rendering on Higgsfield
+## 2026-05-09 (final) — pivot to KIE.ai sole vendor; defer Identity Lock to v1.5
+
+**Reverses the earlier-same-day Higgsfield consolidation.** Higgsfield doesn't expose self-serve REST API keys — their REST surface is gated to enterprise contracts. MCP and CLI are interactive/session-based, incompatible with a multi-tenant SaaS backend. KIE.ai is now the sole production render vendor.
+
+### Why the reversal
+
+The earlier consolidation (commit `453394c`) assumed Higgsfield REST was available with a self-serve developer key. That assumption was wrong. Higgsfield offers:
+- **MCP** — desktop-Cowork or Antigravity, session-authed. Not viable for a server backend.
+- **CLI** — interactive auth, also session-based. Same blocker.
+- **REST** — exists, but enterprise-gated. Not available without a contract conversation.
+
+KIE.ai aggregates Nano Banana Pro and Bytedance Seedance 2 with self-serve keys, REST endpoints, async job polling, and rate limits we can budget against.
+
+### What's locked
+
+- **Image gen:** KIE.ai REST → `nano-banana-pro` (2K, supports `image_input` array for carousel cover-anchoring)
+- **Video gen:** KIE.ai REST → `bytedance/seedance-2` (1080p, supports `first_frame_url` for image-to-video and `aspect_ratio` enums covering our `PLATFORM_SPECS`)
+- **Identity Lock:** REMOVED from v1. Phase 7 deferred to v1.5 — will use Replicate Flux LoRA training. KIE.ai has no SOUL equivalent.
+- **Higgsfield:** preserved at `apps/jobs/src/lib/render/_deferred/higgsfield.ts.bak` — adapter shape ready to resurrect when Higgsfield opens self-serve REST or we sign enterprise.
+
+### What this changes in code
+
+- `apps/jobs/src/lib/render/kie.ts`: real implementation (not a stub) — `createTask` + polling at `recordInfo`, `JSON.parse(resultJson).resultUrls[0]` extraction. Handles 4-15s duration validation, max-8 reference-image cap, and ignores `soul_reference_id` with a warn-level log (Identity Lock deferred).
+- `apps/jobs/src/lib/render/_deferred/higgsfield.ts.bak`: file moved, deferred banner added, excluded from build.
+- `apps/jobs/src/lib/render/index.ts`: `IdentityRenderClient` interface DROPPED from v1 union. `ImageRenderResult.provider` and `VideoRenderResult.provider` narrowed to `'kie'`. `SoulTrainRequest` / `SoulTrainResult` types removed.
+- `packages/shared/src/post.schema.ts`: `RenderResult.provider` → `z.literal('kie')`.
+- `packages/shared/src/brand-skill.schema.ts`: `IdentityLock` block annotated as scaffolded-for-v1.5; default `use_character_by_default: false`. Schema unchanged so v1.5 is purely additive.
+- `.env.example`: `KIE_AI_API_KEY` restored; `HIGGSFIELD_API_KEY` removed.
+- `README.md`: AI stack section reflects KIE.ai-only; external-services round updated.
+
+### Hard rules unchanged
+
+- Explicit `model_id` on every adapter call; throws on `'auto'`. (`assertExplicitModelId`)
+- Pinned API version header (`X-KIE-API-Version`).
+- Alarm-severity log on any non-2xx from KIE REST.
+- Reference URLs MUST be Supabase signed URLs — never raw KIE CDN URLs (which can expire mid-job).
+
+### Smoke-test gate (passed before this commit)
+
+Both Nano Banana Pro at 9:16 / 2K and Seedance 2 at 9:16 / 1080p / 5s were exercised end-to-end against KIE.ai with the production API key. Both returned valid asset URLs. Adapter shape matches reality.
+
+### Trade-offs accepted
+
+- **No identity-lock in v1.** Users get on-screen text in their brand fonts, brand colors composited correctly, and consistent voice — but characters in posts will not be face-locked across runs. v1.5 closes this with Replicate Flux LoRA. The buyer persona (solo creator generating text+image posts) doesn't need identity lock to ship; ad/UGC users will need it and they're the v1.5 cohort.
+- **Single-vendor risk.** If KIE.ai goes down, we're down. Roadmap entry for v1.5+ is multi-vendor failover (KIE → Replicate → Higgsfield). The Higgsfield adapter is already 80% scaffolded for that work.
+
+---
+
+## 2026-05-09 (later) — drop KIE.ai, consolidate all rendering on Higgsfield (REVERSED — see entry above)
 
 Higgsfield's REST API exposes Nano Banana Pro alongside Video and SOUL identity-lock. KIE.ai was a redundant middleman. Single provider going forward.
 

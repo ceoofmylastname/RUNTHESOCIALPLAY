@@ -1,11 +1,15 @@
 /**
  * Render-provider adapter interfaces.
  *
- * Single provider as of 2026-05-09: Higgsfield REST. Higgsfield's own
- * REST API exposes Nano Banana Pro alongside Video and SOUL identity-
- * lock, so KIE.ai was redundant — consolidated all image + video + SOUL
- * onto Higgsfield. KIE adapter preserved at `_deferred/kie.ts.bak` as a
- * v1.5 failover (see docs/roadmap.md).
+ * Single provider as of 2026-05-09 (final): KIE.ai REST. Higgsfield
+ * doesn't expose self-serve REST API keys (enterprise-gated); MCP and
+ * CLI are interactive/session-based, incompatible with a multi-tenant
+ * backend. Identity Lock (Phase 7) deferred to v1.5 — KIE.ai has no
+ * SOUL equivalent; will use Replicate Flux LoRA training when built.
+ *
+ * Higgsfield adapter preserved at `_deferred/higgsfield.ts.bak` for
+ * v1.5+ if Higgsfield opens self-serve REST or we add multi-vendor
+ * failover. See `docs/pipeline-decisions.md`.
  *
  * Adapters are thin — they own request shaping, retries, and provider-
  * specific quirks. The pipeline never imports a provider directly; it
@@ -37,9 +41,9 @@ export interface ImageRenderRequest {
 }
 
 export interface ImageRenderResult {
-  provider: 'higgsfield';
+  provider: 'kie';
   provider_job_id: string;
-  asset_url: string;             // CloudFront-style URL from provider; the pipeline copies to Supabase Storage before any downstream reference
+  asset_url: string;             // CDN URL from provider; pipeline copies to Supabase Storage before any downstream reference (e.g., carousel slide-2-N anchoring)
   width: number;
   height: number;
   file_size_bytes: number;
@@ -58,7 +62,7 @@ export interface VideoRenderRequest {
 }
 
 export interface VideoRenderResult {
-  provider: 'higgsfield';
+  provider: 'kie';
   provider_job_id: string;
   asset_url: string;
   width: number;
@@ -67,21 +71,11 @@ export interface VideoRenderResult {
   file_size_bytes: number;
 }
 
-export interface SoulTrainRequest {
-  model_id: string;              // e.g. 'soul_cast'
-  prompt: string;
-  aspect_ratio: AspectRatio;
-  resolution: '2k';
-  idempotency_key: string;
-}
-
-export interface SoulTrainResult {
-  provider: 'higgsfield';
-  reference_id: string;          // returned by Higgsfield SOUL; used as `soul_reference_id` downstream
-  portrait_url: string;
-  width: number;
-  height: number;
-}
+// IdentityRenderClient (SOUL training) is DROPPED from v1.
+// Identity Lock deferred to v1.5 — see docs/roadmap.md. The schema
+// types (SoulTrainRequest / SoulTrainResult) are intentionally NOT
+// defined here so the pipeline can't accidentally import them. They'll
+// land alongside the Replicate Flux LoRA adapter when v1.5 work begins.
 
 export interface ImageRenderClient {
   generateImage(req: ImageRenderRequest): Promise<ImageRenderResult>;
@@ -89,10 +83,6 @@ export interface ImageRenderClient {
 
 export interface VideoRenderClient {
   generateVideo(req: VideoRenderRequest): Promise<VideoRenderResult>;
-}
-
-export interface IdentityRenderClient {
-  trainCharacter(req: SoulTrainRequest): Promise<SoulTrainResult>;
 }
 
 /**

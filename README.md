@@ -25,11 +25,11 @@ Subscription SaaS that delivers fully-produced social posts (copy + visual + pla
 - **DB + Auth + Storage:** Supabase (Postgres, RLS-locked)
 - **Job queue:** Trigger.dev v3
 - **Payments:** Stripe (subscriptions + metered)
-- **AI:** all rendering consolidated on Higgsfield REST as of 2026-05-09 (KIE.ai dropped — see docs/pipeline-decisions.md)
+- **AI:** all rendering on KIE.ai REST as of 2026-05-09 (Higgsfield deferred — see docs/pipeline-decisions.md)
   - Copy → Claude Sonnet 4.6 (`@anthropic-ai/sdk`, workers only)
-  - Image → Nano Banana Pro via Higgsfield REST (`api.higgsfield.ai`)
-  - Video → Higgsfield Video REST
-  - Identity-lock → Higgsfield SOUL REST
+  - Image → Nano Banana Pro via KIE.ai REST (model `nano-banana-pro`)
+  - Video → Bytedance Seedance 2 via KIE.ai REST (model `bytedance/seedance-2`)
+  - Identity-lock → DEFERRED to v1.5 (Replicate Flux LoRA training; Phase 7 deferred)
 - **Email:** Resend (workers only)
 - **Analytics:** PostHog
 
@@ -103,9 +103,10 @@ These need real accounts/API keys. Get the test/dev tier of each, populate `.env
 - Get API key at console.anthropic.com
 - Confirm Claude Sonnet 4.6 access — model id `claude-sonnet-4-6`
 
-### 4. Higgsfield (Image + Video + SOUL)
-- Get API key from `api.higgsfield.ai` developer portal
-- Single REST surface covers Nano Banana Pro (image), Higgsfield Video, and SOUL identity-lock
+### 4. KIE.ai (Image + Video)
+- Get API key at https://kie.ai → Settings → API
+- Single REST surface covers Nano Banana Pro (image, model `nano-banana-pro`) and Seedance 2 (video, model `bytedance/seedance-2`)
+- Endpoint: `POST https://api.kie.ai/api/v1/jobs/createTask` + poll `GET /api/v1/jobs/recordInfo?taskId=...`
 
 ### 5. Stripe
 - Create test-mode account

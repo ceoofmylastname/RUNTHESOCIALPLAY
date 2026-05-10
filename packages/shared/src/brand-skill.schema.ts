@@ -223,6 +223,15 @@ export type HardRules = z.infer<typeof HardRules>;
 
 // ---------------------------------------------------------------------------
 // 8. Identity-lock — character behavior toggle
+//
+// SCAFFOLDED FOR v1.5. Identity Lock requires SOUL-style identity-locked
+// generation; KIE.ai (our v1 sole render vendor) does not expose a SOUL
+// equivalent. Phase 7 (Identity Lock) is deferred to v1.5 — will use
+// Replicate Flux LoRA training when built. See docs/roadmap.md.
+//
+// In v1: onboarding step 5 displays a "Coming in v1.5" stub with a skip
+// button. Default `use_character_by_default: false`. The schema stays
+// in place so v1.5 work is purely additive (no migration required).
 // ---------------------------------------------------------------------------
 
 export const IdentityLock = z.object({
